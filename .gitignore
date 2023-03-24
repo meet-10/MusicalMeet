@@ -1,0 +1,9 @@
+__pycache__
+.DStore
+pyvenv.cfg
+Scripts
+Lib
+include
+
+Music/requirements.txt
+Music/__pycache__
