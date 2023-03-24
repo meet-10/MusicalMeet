@@ -1,4 +1,4 @@
-from fastapi import FastAPI,Request,Depends,status,HTTPException,File, UploadFile
+from fastapi import FastAPI,Request,Depends,status,HTTPException,File, UploadFile,Response
 from Categories import schemas,models
 from Categories.database import get_db,engine
 from fastapi.responses import HTMLResponse
@@ -6,11 +6,14 @@ from fastapi.templating import Jinja2Templates
 from typing import List
 from typing_extensions import Annotated
 from sqlalchemy.orm import Session
+from Categories.routers import classical
 
 
 app = FastAPI()
 
 models.Base.metadata.create_all(bind = engine)
+
+app.include_router(classical.router)
 templates = Jinja2Templates(directory="Templates")
 
 
@@ -27,35 +30,21 @@ def home(request : Request):
 
     return templates.TemplateResponse("page.html",{"request": request,"data": data})
 
-@app.get('/classical',response_model=List[schemas.Show_songs],tags=['Classical'])
 
-def all_songs(db: Session = Depends(get_db)):
-    songs = db.query(models.Classical).all()
-    return songs
+@app.post("/uploadfile/",tags=['Files'])
+async def Upload_file(file: UploadFile = File(...),db:Session = Depends(get_db)):
+   new_file = models.Filetype(file_name = file.filename, file_type = file.content_type, file_content = file.file.read())
+   db.add(new_file)
+   db.commit()
+   db.refresh(new_file)
+   return {"file_id": new_file.id}
 
-@app.post('/',status_code= status.HTTP_201_CREATED,tags=['Classical'])
-
-async def create(file: UploadFile,songs:schemas.songs,db:Session = Depends(get_db)):
-    # creating new Schema
-    
-    new_song = models.Classical(name = songs.name, singer = songs.singer,movie = songs.movie,audio = songs.audio)
-    # Adding it to Db
-    db.add(new_song)
-    #  To execute it
-    db.commit()
-    db.refresh(new_song)
-    return new_song
-
-@app.get('/{id}',status_code=200,response_model = schemas.Show_songs,tags=['Classical'])
-def show(id,db:Session = Depends(get_db)):
-    
-    songs = db.query(models.Classical).filter(models.Classical.id == id).first()
-    if not songs:
-        raise HTTPException(status_code=404,detail=f"id {id} not available")
-    return songs
+@app.get("/files/{file_id}",response_model=schemas.Show_file,tags=['Files'])
+def read_file(file_id: int,db: Session = Depends(get_db)):
+    db_file = db.query(models.Filetype).filter(models.Filetype.id == file_id).first()
+    if not db_file:
+        raise HTTPException(status_code=404,detail=f"id {file_id} not available")
+    return Response(content=db_file.file_content, media_type=db_file.file_type)
 
 
-@app.post("/uploadfile/",tags=['Classical'])
-async def Upload_file(file: UploadFile,db:Session = Depends(get_db)):
-   #data = file.file.read()
-   return {"filename": file.filename, "type" : file.content_type}
+
