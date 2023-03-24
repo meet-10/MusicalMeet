@@ -7,3 +7,4 @@ include
 
 Music/requirements.txt
 Music/__pycache__
+../__pycache__
