@@ -1,14 +1,23 @@
-<!DOCTYPE html>
-<html>
-<head>
-<link href='https://fonts.googleapis.com/css?family=Lexend Deca' rel='stylesheet'>
-</head>
-<body>
-    <h1 style="text-align:center">Welcome to Meet.Sangeet</h1>
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+
+{% endblock %}
+
+{% block page_content %}
+
+<h1>
+    Welcome to FastAPI Starter.
+</h1>
+
 {{data.Pop}}
 {{data.alternate}}
-{{data.electronic}}
-{{data.jazz}}
-{{data.classical}}
-</body>
-</html>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+
+{% endblock %}
