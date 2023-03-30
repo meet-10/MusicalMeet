@@ -9,6 +9,7 @@ class SongCategoryBase(BaseModel):
 
 
 class SongCategory(SongCategoryBase):
+    id:int
     class Config():
         orm_mode = True
 
@@ -22,7 +23,7 @@ class FiletypeBase(BaseModel):
 
 class Filetype(FiletypeBase):
     id: int
-    class Config:
+    class Config():
         orm_mode = True
 
 
@@ -57,7 +58,7 @@ class ShowFile(BaseModel):
     file_name: str
     file_type: str
     file_content: bytes
-    files: List[ShowSong] = []
+    files: ShowSong
     class Config():
         orm_mode = True
 

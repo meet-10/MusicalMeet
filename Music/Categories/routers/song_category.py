@@ -23,8 +23,7 @@ def create(song_category: schemas.SongCategory, db: Session = Depends(get_db)):
         db.add(db_song_category)
         db.commit()
         db.refresh(db_song_category)
-        return db_song_category                
-    # {"id": db_song_category.id, "type": db_song_category.type}
+        return {"id": db_song_category.id, "type": db_song_category.type}
     except SQLAlchemyError as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
